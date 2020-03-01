@@ -14,9 +14,12 @@ module.exports = {
         clientSecret: conf.clientSecret,
         authorizationURL: 'https://discordapp.com/api/oauth2/authorize?prompt=none',
         callbackURL: conf.callbackURL,
-        scope: 'identify email'
+        scope: 'identify email guilds'
       }, async (accessToken, refreshToken, profile, cb) => {
         try {
+          if (conf.guildId && !_.some(profile.guilds, { id: conf.guildId })) {
+            throw new WIKI.Error.AuthLoginFailed()
+          }
           const user = await WIKI.models.users.processProfile({
             profile: {
               ...profile,
